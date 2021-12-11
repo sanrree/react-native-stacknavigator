@@ -148,12 +148,24 @@ function useStack(parameters) {
     }
   }
 
+  function dropHistory() {
+    const _Pops = BackHandlerListeners.PopCallbacks;
+    _Pops.slice(0, _Pops.length - 1).forEach((action) => {
+      BackHandler.removeEventListener('hardwareBackPress', action);
+    });
+    _Pops.splice(0, _Pops.length - 1);
+
+    const _currentStack = currentStack.current;
+    currentStack.current = [_currentStack[_currentStack.length - 1]];
+  }
+
   return {
     push,
     pop,
     reset,
     isLastScreen,
     rootPop,
+    dropHistory,
     currentStack,
     currentScreen,
   };

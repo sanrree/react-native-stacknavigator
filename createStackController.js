@@ -2,12 +2,15 @@ import React from 'react';
 import Controller from './controller';
 
 export default function createStackController(routes, settings) {
-  const Stack = (props) => {
+  const Stack = ({navigator,overDrawElements,belowDrawElements,initialScreen}) => {
     return (
       <Controller
         routes={routes}
         settings={settings}
-        rootNavigator={props.navigator}
+        rootNavigator={navigator}
+        overDrawElements={overDrawElements}
+        belowDrawElements={belowDrawElements}
+        initialScreen={initialScreen}
       />
     );
   };

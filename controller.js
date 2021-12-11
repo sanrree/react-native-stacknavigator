@@ -2,11 +2,13 @@ import React from 'react';
 import { useStack, useAnimation, useContextState } from './hooks';
 import StackContext from './context';
 import { AppScreenContainer, AppStackContainer } from './components';
+import { TouchableOpacity } from 'react-native';
 
 export default function Controller({
   routes,
   rootNavigator,
   screenProps,
+  belowDrawElements,
   overDrawElements,
   initialScreen,
   settings,
@@ -21,10 +23,24 @@ export default function Controller({
 
   const contextState = useContextState();
 
+  const pushListeners = React.useRef([]);
+  const popListeners = React.useRef([]);
+
+  function onPush(listener) {
+    pushListeners.current.push(listener)
+  }
+
+  function onPop(listener) {
+    popListeners.current.push(listener)
+  }
+
   function pop() {
+
     if (animator.isAnimationRunning.current) {
       return;
     }
+
+    popListeners.current.forEach(x => x(controller.currentStack.current[controller.currentStack.current.length - 2].screenKey));
 
     if (controller.isLastScreen()) {
       controller.rootPop();
@@ -35,15 +51,19 @@ export default function Controller({
     }
   }
 
-  function push(screen, params) {
+  function push(screen, params, afterPush) {
     if (animator.isAnimationRunning.current) {
       return;
     }
 
+    pushListeners.current.forEach(x => x(screen))
+
     controller.push(screen, params, pop, (callback) => {
       const toValue = controller.currentStack.current.length - 1;
       animator.fixAnimatedValue(toValue);
-      animator.animate(toValue);
+      animator.animate(toValue,()=>{
+        afterPush?.()
+      });
     });
   }
 
@@ -55,12 +75,15 @@ export default function Controller({
         params: item.params,
         staticProps: routes[item.screenKey].staticProps,
         screenProps,
+        currentScreen: controller.currentScreen,
+        onPop,
+        onPush,
       },
     };
   }
 
   function getContextValue() {
-    return [push, pop, contextState.values, contextState.setValue];
+    return [push, pop, controller.dropHistory,contextState.values, contextState.setValue];
   }
 
   function getAnimatedStyles(item, index) {
@@ -100,7 +123,12 @@ export default function Controller({
 
   return (
     <StackContext.Provider value={getContextValue()}>
-      <AppStackContainer>{renderStack()}</AppStackContainer>
+      {belowDrawElements?.map((Item, index) => {
+        return <Item key={index} currentScreen={controller.currentScreen} onPush={onPush} onPop={onPop} />;
+      })}
+      <AppStackContainer>
+
+        {renderStack()}</AppStackContainer>
 
       {overDrawElements?.map((Item, index) => {
         return <Item key={index} />;
