@@ -131,7 +131,7 @@ export default function Controller({
         {renderStack()}</AppStackContainer>
 
       {overDrawElements?.map((Item, index) => {
-        return <Item key={index} />;
+        return <Item key={index} currentScreen={controller.currentScreen} onPush={onPush} onPop={onPop}/>;
       })}
     </StackContext.Provider>
   );
