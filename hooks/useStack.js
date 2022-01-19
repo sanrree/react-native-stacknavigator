@@ -134,6 +134,8 @@ function useStack(parameters) {
     setCurrentScreen(
       currentStack.current[currentStack.current.length - 1].screenKey
     );
+
+    return currentStack.current[currentStack.current.length - 1];
   }
 
   function isLastScreen() {
