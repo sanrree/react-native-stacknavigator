@@ -35,7 +35,7 @@ export default function Controller({
     popListeners.current.push(listener);
   }
 
-  function pop() {
+  function pop(params) {
     if (animator.isAnimationRunning.current) {
       return;
     }
@@ -51,6 +51,9 @@ export default function Controller({
     if (controller.isLastScreen()) {
       controller.rootPop();
     } else {
+      if (params?.reset) {
+        controller.reset(pop);
+      }
       animator.animate(controller.currentStack.current.length - 2, () => {
         const screen = controller.pop();
         currentParams.current = screen.params;
