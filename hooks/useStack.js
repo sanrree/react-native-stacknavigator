@@ -76,7 +76,7 @@ function useStack(parameters) {
 
     if (_is_undefined) {
       if (_rootNavigator.current) {
-        _rootNavigator.Navigate(screen, params);
+        _rootNavigator.current.Navigate(screen, params);
       }
       return;
     } else if (_is_current) {
